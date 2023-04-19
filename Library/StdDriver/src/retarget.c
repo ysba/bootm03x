@@ -56,17 +56,17 @@ enum { r0, r1, r2, r3, r12, lr, pc, psr};
  * @return      None
  * @details     This function is implement to print r0, r1, r2, r3, r12, lr, pc, psr
  */
-static void stackDump(uint32_t stack[])
-{
-    printf("r0  = 0x%x\n", stack[r0]);
-    printf("r1  = 0x%x\n", stack[r1]);
-    printf("r2  = 0x%x\n", stack[r2]);
-    printf("r3  = 0x%x\n", stack[r3]);
-    printf("r12 = 0x%x\n", stack[r12]);
-    printf("lr  = 0x%x\n", stack[lr]);
-    printf("pc  = 0x%x\n", stack[pc]);
-    printf("psr = 0x%x\n", stack[psr]);
-}
+//static void stackDump(uint32_t stack[])
+//{
+//    printf("r0  = 0x%x\n", stack[r0]);
+//    printf("r1  = 0x%x\n", stack[r1]);
+//    printf("r2  = 0x%x\n", stack[r2]);
+//    printf("r3  = 0x%x\n", stack[r3]);
+//    printf("r12 = 0x%x\n", stack[r12]);
+//    printf("lr  = 0x%x\n", stack[lr]);
+//    printf("pc  = 0x%x\n", stack[pc]);
+//    printf("psr = 0x%x\n", stack[psr]);
+//}
 
 /**
  * @brief       Hard fault handler
@@ -76,9 +76,9 @@ static void stackDump(uint32_t stack[])
  */
 void Hard_Fault_Handler(uint32_t stack[])
 {
-    printf("In Hard Fault Handler\n");
+    //printf("In Hard Fault Handler\n");
 
-    stackDump(stack);
+    //stackDump(stack);
     /* Replace while(1) with chip reset if WDT is not enabled for end product */
     while(1);
     /* SYS->IPRST0 = SYS_IPRST0_CHIPRST_Msk; */
@@ -561,42 +561,42 @@ static void SendChar(int ch)
  *
  * @details  Wait UART debug port or semihost to input a char.
  */
-static char GetChar(void)
-{
-#ifdef DEBUG_ENABLE_SEMIHOST
-# if defined (__CC_ARM)
-    int nRet;
-    while(SH_DoCommand(0x101, 0, &nRet) != 0)
-    {
-        if(nRet != 0)
-        {
-            SH_DoCommand(0x07, 0, &nRet);
-            return (char)nRet;
-        }
-    }
-# else
-    int nRet;
-    while(SH_DoCommand(0x7, 0, &nRet) != 0)
-    {
-        if(nRet != 0)
-            return (char)nRet;
-    }
-# endif
-    return (0);
-#else
-#ifndef DISABLE_UART
-    while(1)
-    {
-        if((DEBUG_PORT->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) == 0)
-        {
-            return (DEBUG_PORT->DAT);
-        }
-    }
-#else
-    return 0;
-#endif
-#endif
-}
+//static char GetChar(void)
+//{
+//#ifdef DEBUG_ENABLE_SEMIHOST
+//# if defined (__CC_ARM)
+//    int nRet;
+//    while(SH_DoCommand(0x101, 0, &nRet) != 0)
+//    {
+//        if(nRet != 0)
+//        {
+//            SH_DoCommand(0x07, 0, &nRet);
+//            return (char)nRet;
+//        }
+//    }
+//# else
+//    int nRet;
+//    while(SH_DoCommand(0x7, 0, &nRet) != 0)
+//    {
+//        if(nRet != 0)
+//            return (char)nRet;
+//    }
+//# endif
+//    return (0);
+//#else
+//#ifndef DISABLE_UART
+//    while(1)
+//    {
+//        if((DEBUG_PORT->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) == 0)
+//        {
+//            return (DEBUG_PORT->DAT);
+//        }
+//    }
+//#else
+//    return 0;
+//#endif
+//#endif
+//}
 
 /**
  * @brief    Check any char input from UART

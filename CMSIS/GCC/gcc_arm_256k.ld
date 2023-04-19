@@ -1,10 +1,7 @@
 /* Linker script to configure memory regions. */
 MEMORY
 {
-/*  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x40000 */ /* 256k */
-  RESET (rx)  : ORIGIN = 0x00000000, LENGTH = 0x200
-  FINFO (rx)  : ORIGIN = 0x00000200, LENGTH = 0x20
-  FLASH (rx)  : ORIGIN = 0x00000220, LENGTH = 0x20000   /* 256k */
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x40000 	/* 256k */
   LDROM (rx)  : ORIGIN = 0x00100000, LENGTH = 0x1000    /* 4k */
   CONFIG (rx) : ORIGIN = 0x00300000, LENGTH = 0xC		/* 12 bytes */  
   RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 0x10000    /* 64k  */
@@ -48,36 +45,18 @@ GROUP(libgcc.a libc.a libm.a libnosys.a)
 ENTRY(Reset_Handler)
 
 SECTIONS
-{	
-	.reset : {
-		KEEP(*(.vectors))
-		__Vectors_End = .;
-		__Vectors_Size = __Vectors_End - __Vectors;
-		__end__ = .;
-		KEEP(*(.init))
-		KEEP(*(.fini))
-	
-	} > LDROM
-	
-	.firmwareinfo : {
-		*(.firmwareinfo*)
-	} > FINFO
-	 
+{		 
 	.text :
 	{
-		/*
 		KEEP(*(.vectors))
 		__Vectors_End = .;
 		__Vectors_Size = __Vectors_End - __Vectors;
 		__end__ = .;
-		*/
 
 		*(.text*)
 	
-		/*
 		KEEP(*(.init))
 		KEEP(*(.fini))
-		*/
 
 		/* .ctors */
 		*crtbegin.o(.ctors)
@@ -96,18 +75,18 @@ SECTIONS
 		*(.rodata*)
 
 		KEEP(*(.eh_frame*))
-	} > FLASH
+	} > LDROM
 
 	.ARM.extab :
 	{
 		*(.ARM.extab* .gnu.linkonce.armextab.*)
-	} > FLASH
+	} > LDROM
 
 	__exidx_start = .;
 	.ARM.exidx :
 	{
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-	} > FLASH
+	} > LDROM
 	__exidx_end = .;
 
 	/* To copy multiple ROM to RAM sections,
@@ -147,9 +126,9 @@ SECTIONS
 	__etext = .;
 	
 	
-	loader : 
+  	bootversion 0x100fec: 
   	{
-    	*(.loader*);
+    	*(.bootversion*);
   	} > LDROM
   	
   	
@@ -228,8 +207,4 @@ SECTIONS
 
 	/* Check if data + heap + stack exceeds RAM limit */
 	ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
-	
-	/*
-	ASSERT( LENGTH(LDROM) >= (__bootloader_end__ - __boot0_start__), "LDROM memory overflowed !")
-	*/
 }
