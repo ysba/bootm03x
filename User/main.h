@@ -13,8 +13,3 @@
 
 
 #define FLASH_BOOTLOADER_VERSION    0x100feC
-
-
-
-aidiodjfaosfjoaijfioajfas;fasdfjkla
-fakfjlkajflkajflkasjdfjlkadjk
