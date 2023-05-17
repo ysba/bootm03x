@@ -148,8 +148,8 @@ static uint32_t crc32_hw(uint32_t address, uint32_t len) {
 
 void main() {
 
-	uint32_t firmware_len;
-	uint32_t transfer_len;
+	uint32_t FW_LEN;
+	uint32_t MEM_LEN;
 	uint32_t checksum_read;
 	uint32_t checksum_calc;
 	uint32_t flash_address_src;
@@ -214,37 +214,37 @@ void main() {
 	// get transfer size from address 0x218 (every fw must have value). it will only change
 	// for different flash size (other mcu) or for same flash size but with data in flash
 
-	transfer_len = FMC_Read(FLASH_TRANSFER_LEN_ADDRESS);
-	bin2hex32((uint8_t *) &transfer_len);
+	MEM_LEN = FMC_Read(FLASH_TRANSFER_LEN_ADDRESS);
+	bin2hex32((uint8_t *) &MEM_LEN);
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	// check maximum possible value for transfer len, which is half of a 512k flash device.
 
-	if (transfer_len <= 0x40000) {
+	if (MEM_LEN <= 0x40000) {
 
 		PutString("a ");
 
 		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 		// get len of firmware available in the transfer region
 
-		firmware_len = FMC_Read(transfer_len + FLASH_FIRMWARE_LEN_ADDRESS);
+		FW_LEN = FMC_Read(MEM_LEN + FLASH_FIRMWARE_LEN_ADDRESS);
 
-		bin2hex32((uint8_t *) &firmware_len);
+		bin2hex32((uint8_t *) &FW_LEN);
 
-		if (firmware_len < (transfer_len - 4)) {
+		if (FW_LEN < (MEM_LEN - 4)) {
 
 			PutString("b ");
 
 			// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 			// get crc at the end of the transfer region
 
-			checksum_read = FMC_Read(transfer_len + firmware_len);
+			checksum_read = FMC_Read(MEM_LEN + FW_LEN);
 			bin2hex32((uint8_t *) &checksum_read);
 
 			// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 			// calculate crc from flash data in transfer region
 
-			checksum_calc = crc32_hw(transfer_len, firmware_len);
+			checksum_calc = crc32_hw(MEM_LEN, FW_LEN);
 			bin2hex32((uint8_t *) &checksum_calc);
 
 			// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -258,7 +258,7 @@ void main() {
 				// erase main firmware region
 
 				flash_address_src = FMC_APROM_BASE;
-				while (flash_address_src < (FMC_APROM_BASE + transfer_len)) {
+				while (flash_address_src < (FMC_APROM_BASE + MEM_LEN)) {
 
 					FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
 					FMC->ISPADDR = flash_address_src;
@@ -275,9 +275,9 @@ void main() {
 				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 				// transfer new firmware to main region
 
-				flash_address_src = transfer_len;
+				flash_address_src = MEM_LEN;
 				flash_address_dst = FMC_APROM_BASE;
-				count = firmware_len;
+				count = FW_LEN;
 				while(count--) {
 					flash_data = FMC_Read(flash_address_src);
 					FMC_Write(flash_address_dst, flash_data);
@@ -288,10 +288,10 @@ void main() {
 				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 				// check crc in the main region
 
-				checksum_read = FMC_Read(FMC_APROM_BASE + firmware_len);
+				checksum_read = FMC_Read(FMC_APROM_BASE + FW_LEN);
 				bin2hex32((uint8_t *) &checksum_read);
 
-				checksum_calc = crc32_hw(FMC_APROM_BASE, firmware_len);
+				checksum_calc = crc32_hw(FMC_APROM_BASE, FW_LEN);
 				bin2hex32((uint8_t *) &checksum_calc);
 
 				if (checksum_read == checksum_calc)
