@@ -2,8 +2,8 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x40000 	/* 256k */
-  LDROM (rx)  : ORIGIN = 0x00100000, LENGTH = 0x1000    /* 4k */
-  CONFIG (rx) : ORIGIN = 0x00300000, LENGTH = 0xC		/* 12 bytes */  
+  LDROM (rx)  : ORIGIN = 0x00100000, LENGTH = 0xFFC		/* 4k */
+  BLVER (rx)  : ORIGIN = 0x00100FFC, LENGTH = 0x04		/* 4 bytes */  
   RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 0x10000    /* 64k  */
 }
 
@@ -126,18 +126,12 @@ SECTIONS
 	__etext = .;
 	
 	
-  	bootversion 0x100fec: 
+  	bootm03x_version 0x100ffc: 
   	{
-    	*(.bootversion*);
-  	} > LDROM
+    	*(.bootm03x_version*);
+  	} > BLVER
   	
   	
-	userconfig : 
-  	{
-    	*(.userconfig*);
-  	} > CONFIG
-  	
-	
 	.data : AT (__etext)
 	{
 		__data_start__ = .;

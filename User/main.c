@@ -14,9 +14,9 @@
 // 0xffffef3f	cbs + icelock
 // 0xffffef3d	cbs + icelock + lock
 
-const uint32_t user_config[3] __attribute__ ((section (".bootm03x_userconfig"))) = { 0xffffff3f, 0xffffffff, 0xffffffff };
+//const uint32_t user_config[3] __attribute__ ((section (".bootm03x_userconfig"))) = { 0xffffff3f, 0xffffffff, 0xffffffff };
 
-volatile const uint32_t __attribute__ ((section (".bootm03x_loaderversion"))) boot_version = BOOTLOADER_VERSION;
+volatile const uint32_t __attribute__ ((section (".bootm03x_version"))) boot_version = BOOTLOADER_VERSION;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ static void SendChar_ToUART(int ch) {
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-static void PutString(const char *str) {
+static void PutString(char *str) {
 #ifdef DEBUG_ON
     while (*str != '\0') {
         SendChar_ToUART(*str++);
@@ -157,10 +157,10 @@ void main() {
 	uint32_t flash_data;
 	uint32_t count;
 	uint32_t config_data;
-	const uint8_t bootloader_version_str[5] = {
-			(BOOTLOADER_VERSION >> 8) + 0x30,
+	uint8_t bootloader_version_str[5] = {
+			0,//(BOOTLOADER_VERSION >> 8) + 0x30,
 			'.',
-			(BOOTLOADER_VERSION & 0xff) + 0x30,
+			0,//(BOOTLOADER_VERSION & 0xff) + 0x30,
 			' ',
 			0
 	};
@@ -205,6 +205,8 @@ void main() {
     FMC_Open();
 
     PutString("<< bootm03x v");
+    bootloader_version_str[0] = (boot_version >> 8) + 0x30;
+    bootloader_version_str[2] = (boot_version & 0xff) + 0x30;
     PutString(bootloader_version_str);
 
 	/* Enable FMC ISP function */
